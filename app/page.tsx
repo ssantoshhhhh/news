@@ -30,7 +30,18 @@ export default function HomePage() {
     clearError,
   } = useNewsStore()
 
+  // Show new articles indicator when page changes
+  useEffect(() => {
+    if (currentPage > 1) {
+      setShowNewArticlesIndicator(true)
+      // Hide indicator after 5 seconds
+      const timer = setTimeout(() => setShowNewArticlesIndicator(false), 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [currentPage])
+
   const [isInitialized, setIsInitialized] = useState(false)
+  const [showNewArticlesIndicator, setShowNewArticlesIndicator] = useState(false)
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -286,21 +297,40 @@ export default function HomePage() {
                   <p className="text-gray-500">Try adjusting your search or category filter</p>
                 </motion.div>
               ) : (
-                <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <AnimatePresence>
-                    {filteredArticles.map((article, index) => (
-                      <motion.div
-                        key={`${article.url}-${index}`}
-                        layout
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ delay: index * 0.1 }}
-                      >
-                        <NewsCard article={article} />
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
+                <motion.div layout className="space-y-6">
+                  {/* New Articles Indicator */}
+                  {showNewArticlesIndicator && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      className="flex items-center justify-center py-4"
+                    >
+                      <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-full shadow-lg">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                          <span className="font-medium">New Articles Loaded!</span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <AnimatePresence>
+                      {filteredArticles.map((article, index) => (
+                        <motion.div
+                          key={`${article.url}-${index}`}
+                          layout
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -20 }}
+                          transition={{ delay: index * 0.1 }}
+                        >
+                          <NewsCard article={article} />
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
+                  </motion.div>
                 </motion.div>
               )}
             </motion.div>
