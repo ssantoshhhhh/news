@@ -7,43 +7,118 @@ const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/
 // API validation flag
 const USE_GEMINI_API = GEMINI_API_KEY && GEMINI_API_KEY.length > 20
 
-// News18 RSS Feed URLs - Updated with working feeds
+// Comprehensive News Sources - Multiple RSS Feeds for better coverage
 const NEWS_FEEDS = {
-  india: "https://www.news18.com/commonfeeds/v1/eng/rss/india.xml",
-  world: "https://www.news18.com/commonfeeds/v1/eng/rss/world.xml",
-  politics: "https://www.news18.com/commonfeeds/v1/eng/rss/politics.xml",
-  business: "https://www.news18.com/commonfeeds/v1/eng/rss/business.xml",
-  technology: "https://www.news18.com/commonfeeds/v1/eng/rss/tech.xml",
-  sports: "https://www.news18.com/commonfeeds/v1/eng/rss/sports.xml",
-  cricket: "https://www.news18.com/commonfeeds/v1/eng/rss/cricket.xml",
-  entertainment: "https://www.news18.com/commonfeeds/v1/eng/rss/entertainment.xml",
-  movies: "https://www.news18.com/commonfeeds/v1/eng/rss/movies.xml",
-  lifestyle: "https://www.news18.com/commonfeeds/v1/eng/rss/lifestyle-2.xml",
-  health: "https://www.news18.com/commonfeeds/v1/eng/rss/health.xml",
-  education: "https://www.news18.com/commonfeeds/v1/eng/rss/education-career.xml",
-  auto: "https://www.news18.com/commonfeeds/v1/eng/rss/auto.xml",
-  viral: "https://www.news18.com/commonfeeds/v1/eng/rss/viral.xml",
-  explainers: "https://www.news18.com/commonfeeds/v1/eng/rss/explainers.xml",
-  // Removed problematic feeds that might not exist or have different formats
+  // News18 Feeds (Primary Source)
+  news18_india: "https://www.news18.com/commonfeeds/v1/eng/rss/india.xml",
+  news18_world: "https://www.news18.com/commonfeeds/v1/eng/rss/world.xml",
+  news18_politics: "https://www.news18.com/commonfeeds/v1/eng/rss/politics.xml",
+  news18_business: "https://www.news18.com/commonfeeds/v1/eng/rss/business.xml",
+  news18_technology: "https://www.news18.com/commonfeeds/v1/eng/rss/tech.xml",
+  news18_sports: "https://www.news18.com/commonfeeds/v1/eng/rss/sports.xml",
+  news18_cricket: "https://www.news18.com/commonfeeds/v1/eng/rss/cricket.xml",
+  news18_entertainment: "https://www.news18.com/commonfeeds/v1/eng/rss/entertainment.xml",
+  news18_movies: "https://www.news18.com/commonfeeds/v1/eng/rss/movies.xml",
+  news18_lifestyle: "https://www.news18.com/commonfeeds/v1/eng/rss/lifestyle-2.xml",
+  news18_health: "https://www.news18.com/commonfeeds/v1/eng/rss/health.xml",
+  news18_education: "https://www.news18.com/commonfeeds/v1/eng/rss/education-career.xml",
+  news18_auto: "https://www.news18.com/commonfeeds/v1/eng/rss/auto.xml",
+  news18_viral: "https://www.news18.com/commonfeeds/v1/eng/rss/viral.xml",
+  news18_explainers: "https://www.news18.com/commonfeeds/v1/eng/rss/explainers.xml",
+  
+  // Additional News Sources for Comprehensive Coverage
+  ndtv_top: "https://feeds.feedburner.com/ndtvnews-top-stories",
+  ndtv_india: "https://feeds.feedburner.com/ndtv/india-news",
+  ndtv_world: "https://feeds.feedburner.com/ndtv/world-news",
+  ndtv_business: "https://feeds.feedburner.com/ndtv/business",
+  ndtv_technology: "https://feeds.feedburner.com/ndtv/technology-news",
+  ndtv_sports: "https://feeds.feedburner.com/ndtv/sports-news",
+  
+  // Times of India Feeds
+  toi_top: "https://timesofindia.indiatimes.com/rssfeedstopstories.cms",
+  toi_india: "https://timesofindia.indiatimes.com/rssfeedscity.cms?city=Mumbai",
+  toi_world: "https://timesofindia.indiatimes.com/rssfeedsworld.cms",
+  toi_business: "https://timesofindia.indiatimes.com/rssfeeds/1898055.cms",
+  toi_technology: "https://timesofindia.indiatimes.com/rssfeeds/66949542.cms",
+  toi_sports: "https://timesofindia.indiatimes.com/rssfeeds/4719148.cms",
+  
+  // Hindustan Times
+  ht_top: "https://www.hindustantimes.com/feeds/rss/india-news/rssfeed.xml",
+  ht_world: "https://www.hindustantimes.com/feeds/rss/world-news/rssfeed.xml",
+  ht_business: "https://www.hindustantimes.com/feeds/rss/business/rssfeed.xml",
+  ht_technology: "https://www.hindustantimes.com/feeds/rss/technology/rssfeed.xml",
+  
+  // Economic Times
+  et_top: "https://economictimes.indiatimes.com/rss.cms",
+  et_business: "https://economictimes.indiatimes.com/markets/rss.cms",
+  et_technology: "https://economictimes.indiatimes.com/tech/rss.cms",
+  
+  // BBC News (International Coverage)
+  bbc_world: "https://feeds.bbci.co.uk/news/world/rss.xml",
+  bbc_technology: "https://feeds.bbci.co.uk/news/technology/rss.xml",
+  bbc_business: "https://feeds.bbci.co.uk/news/business/rss.xml",
+  
+  // Reuters (International Business & Politics)
+  reuters_world: "https://feeds.reuters.com/Reuters/worldNews",
+  reuters_business: "https://feeds.reuters.com/reuters/businessNews",
+  reuters_technology: "https://feeds.reuters.com/reuters/technologyNews",
 }
 
-// Category mapping for better organization
+// Enhanced category mapping for comprehensive news sources
 const CATEGORY_MAPPING = {
-  india: "india",
-  world: "world",
-  politics: "politics",
-  business: "business",
-  technology: "technology",
-  sports: "sports",
-  cricket: "sports",
-  entertainment: "entertainment",
-  movies: "entertainment",
-  lifestyle: "lifestyle",
-  health: "health",
-  education: "education",
-  auto: "auto",
-  viral: "viral",
-  explainers: "explainers",
+  // News18 categories
+  news18_india: "india",
+  news18_world: "world",
+  news18_politics: "politics",
+  news18_business: "business",
+  news18_technology: "technology",
+  news18_sports: "sports",
+  news18_cricket: "sports",
+  news18_entertainment: "entertainment",
+  news18_movies: "entertainment",
+  news18_lifestyle: "lifestyle",
+  news18_health: "health",
+  news18_education: "education",
+  news18_auto: "auto",
+  news18_viral: "viral",
+  news18_explainers: "explainers",
+  
+  // NDTV categories
+  ndtv_top: "general",
+  ndtv_india: "india",
+  ndtv_world: "world",
+  ndtv_business: "business",
+  ndtv_technology: "technology",
+  ndtv_sports: "sports",
+  
+  // Times of India categories
+  toi_top: "general",
+  toi_india: "india",
+  toi_world: "world",
+  toi_business: "business",
+  toi_technology: "technology",
+  toi_sports: "sports",
+  
+  // Hindustan Times categories
+  ht_top: "general",
+  ht_world: "world",
+  ht_business: "business",
+  ht_technology: "technology",
+  
+  // Economic Times categories
+  et_top: "business",
+  et_business: "business",
+  et_technology: "technology",
+  
+  // BBC categories
+  bbc_world: "world",
+  bbc_technology: "technology",
+  bbc_business: "business",
+  
+  // Reuters categories
+  reuters_world: "world",
+  reuters_business: "business",
+  reuters_technology: "technology",
 }
 
 interface ParsedArticle {
@@ -196,13 +271,16 @@ async function parseRSSFeed(xmlContent: string, category: string): Promise<Parse
 
         // Only add articles with valid title and link
         if (cleanTitle.length > 5 && cleanLink.length > 10) {
+          // Determine source name based on category
+          const sourceName = getSourceName(category)
+          
           articles.push({
             title: cleanTitle.substring(0, 200),
             description: cleanDescription.substring(0, 500),
             url: cleanLink,
             urlToImage: imageUrl,
             publishedAt: publishedDate,
-            source: { id: category, name: "News18" },
+            source: { id: category, name: sourceName },
             author: cleanText(author),
             content: cleanDescription,
             aiCategory: CATEGORY_MAPPING[category as keyof typeof CATEGORY_MAPPING] || category,
@@ -832,6 +910,18 @@ function categorizeByKeywords(title: string, description: string, feedCategory: 
   return feedCategory || "general"
 }
 
+// Get source name based on category
+function getSourceName(category: string): string {
+  if (category.startsWith('news18_')) return 'News18'
+  if (category.startsWith('ndtv_')) return 'NDTV'
+  if (category.startsWith('toi_')) return 'Times of India'
+  if (category.startsWith('ht_')) return 'Hindustan Times'
+  if (category.startsWith('et_')) return 'Economic Times'
+  if (category.startsWith('bbc_')) return 'BBC News'
+  if (category.startsWith('reuters_')) return 'Reuters'
+  return 'News Source'
+}
+
 // Enhanced RSS feed fetching with better error handling and timeout
 async function fetchFromRSSFeed(category: string, url: string): Promise<ParsedArticle[]> {
   try {
@@ -891,7 +981,7 @@ async function fetchFromRSSFeed(category: string, url: string): Promise<ParsedAr
   }
 }
 
-// Enhanced mock data with summaries and full content
+// Enhanced mock data with summaries and full content from multiple sources
 const getMockArticles = (): ParsedArticle[] => [
   {
     title: "Revolutionary AI Technology Transforms Healthcare Diagnosis",
@@ -900,7 +990,7 @@ const getMockArticles = (): ParsedArticle[] => [
     url: "https://example.com/ai-healthcare",
     urlToImage: "/placeholder.svg?height=400&width=600&text=AI+Healthcare",
     publishedAt: new Date().toISOString(),
-    source: { id: "tech-news", name: "News18" },
+    source: { id: "news18_technology", name: "News18" },
     author: "Dr. Sarah Johnson",
     content:
       "Revolutionary AI technology is transforming healthcare diagnosis and treatment. The new system uses advanced machine learning algorithms to analyze medical images and patient data, providing faster and more accurate diagnoses.",
@@ -917,7 +1007,7 @@ const getMockArticles = (): ParsedArticle[] => [
     url: "https://example.com/cricket-world-cup",
     urlToImage: "/placeholder.svg?height=400&width=600&text=Cricket+World+Cup",
     publishedAt: new Date(Date.now() - 3600000).toISOString(),
-    source: { id: "sports", name: "News18" },
+    source: { id: "ndtv_sports", name: "NDTV" },
     author: "Sports Reporter",
     content:
       "In a thrilling final match that kept fans on the edge of their seats, Team India defeated Australia to claim the Cricket World Cup trophy after 12 years.",
@@ -934,7 +1024,7 @@ const getMockArticles = (): ParsedArticle[] => [
     url: "https://example.com/stock-market",
     urlToImage: "/placeholder.svg?height=400&width=600&text=Stock+Market",
     publishedAt: new Date(Date.now() - 14400000).toISOString(),
-    source: { id: "business", name: "News18" },
+    source: { id: "et_business", name: "Economic Times" },
     author: "Financial Correspondent",
     content:
       "The Indian stock market has reached unprecedented heights with the BSE Sensex crossing 75,000 points for the first time in history.",
@@ -944,11 +1034,50 @@ const getMockArticles = (): ParsedArticle[] => [
     fullContent:
       "The Indian stock market has reached unprecedented heights with the BSE Sensex crossing 75,000 points for the first time in history. This surge reflects strong investor confidence in the country's economic recovery and growth prospects. Market analysts attribute this growth to strong corporate earnings, positive economic indicators, and increased foreign investment. The technology and banking sectors led the rally, with several companies hitting new highs. Experts believe this trend will continue as the economy shows signs of robust recovery and the government implements business-friendly policies.",
   },
+  {
+    title: "Global Climate Summit Addresses Renewable Energy Transition",
+    description:
+      "World leaders gather at the annual climate summit to discuss ambitious renewable energy targets and carbon reduction strategies. The summit focuses on accelerating the transition to clean energy sources.",
+    url: "https://example.com/climate-summit",
+    urlToImage: "/placeholder.svg?height=400&width=600&text=Climate+Summit",
+    publishedAt: new Date(Date.now() - 7200000).toISOString(),
+    source: { id: "bbc_world", name: "BBC News" },
+    author: "Environment Correspondent",
+    content:
+      "World leaders have gathered for the annual climate summit to address the urgent need for renewable energy transition and carbon reduction strategies.",
+    aiCategory: "world",
+    aiSummary:
+      "World leaders are meeting to discuss renewable energy and climate change. They want to reduce carbon emissions and use more clean energy. This is important for protecting our planet.",
+    fullContent:
+      "World leaders have gathered for the annual climate summit to address the urgent need for renewable energy transition and carbon reduction strategies. The summit brings together representatives from over 150 countries to discuss ambitious targets for reducing carbon emissions and accelerating the adoption of renewable energy sources. Key topics include solar and wind energy expansion, electric vehicle infrastructure, and sustainable urban development. The summit aims to establish concrete action plans and funding mechanisms to support developing nations in their clean energy transitions. Environmental experts emphasize that this decade is crucial for meeting the Paris Agreement targets and preventing catastrophic climate change.",
+  },
+  {
+    title: "Bollywood's New Generation Takes Center Stage",
+    description:
+      "Young actors and filmmakers are revolutionizing Indian cinema with fresh storytelling approaches and innovative filmmaking techniques. The industry is witnessing a creative renaissance.",
+    url: "https://example.com/bollywood-new-generation",
+    urlToImage: "/placeholder.svg?height=400&width=600&text=Bollywood+New+Generation",
+    publishedAt: new Date(Date.now() - 10800000).toISOString(),
+    source: { id: "toi_entertainment", name: "Times of India" },
+    author: "Entertainment Reporter",
+    content:
+      "Bollywood is experiencing a creative renaissance with young actors and filmmakers bringing fresh perspectives to Indian cinema.",
+    aiCategory: "entertainment",
+    aiSummary:
+      "Young actors and filmmakers are changing Bollywood with new ideas and fresh stories. They are making movies in new and creative ways. This is bringing new life to Indian cinema.",
+    fullContent:
+      "Bollywood is experiencing a creative renaissance with young actors and filmmakers bringing fresh perspectives to Indian cinema. The new generation is breaking away from traditional formulas and exploring diverse genres, from intimate dramas to experimental narratives. These filmmakers are addressing contemporary social issues and pushing artistic boundaries. The industry is also embracing digital platforms and international collaborations, expanding its global reach. Critics praise the authenticity and originality of these new voices, which are attracting both domestic and international audiences. This transformation is reshaping the future of Indian cinema and establishing new standards for storytelling and filmmaking.",
+  },
 ]
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const page = parseInt(searchParams.get('page') || '1')
+  const pageSize = 50 // Articles per page
+  
   console.log("API Route called - fetching news from RSS feeds...")
   console.log("Gemini API Status:", USE_GEMINI_API ? "✓ Valid Key Provided" : "✗ No Valid Key - Using Smart Processing")
+  console.log(`Requesting page ${page} with ${pageSize} articles per page`)
 
   try {
     let geminiWorking = false
@@ -1001,11 +1130,29 @@ export async function GET() {
 
     console.log(`Total articles fetched: ${allArticles.length}`)
 
-    // Sort by publication date (newest first)
-    allArticles.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+    // Remove duplicate articles based on URL
+    const uniqueArticles = allArticles.filter((article, index, self) => 
+      index === self.findIndex(a => a.url === article.url)
+    )
+    
+    console.log(`After deduplication: ${uniqueArticles.length} articles`)
 
-    // Take up to 150 articles for better performance
-    const topArticles = allArticles.slice(0, 150)
+    // Sort by publication date (newest first)
+    uniqueArticles.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+
+    // Calculate pagination
+    const startIndex = (page - 1) * pageSize
+    const endIndex = startIndex + pageSize
+    const hasMore = uniqueArticles.length > endIndex
+    
+    // Get articles for current page
+    let topArticles = uniqueArticles.slice(startIndex, endIndex)
+    
+    // If no articles found for this page, return mock articles as fallback
+    if (topArticles.length === 0 && page > 1) {
+      console.log(`No articles found for page ${page}, returning mock articles as fallback`)
+      topArticles = getMockArticles().slice(0, pageSize)
+    }
 
     // Improve categorization using keywords and feed source
     const categorizedArticles = topArticles.map((article) => ({
@@ -1056,6 +1203,9 @@ export async function GET() {
       source: sourceType,
       feedsSuccessful: successfulFeeds,
       feedsTotal: allCategories.length,
+      hasMore: hasMore,
+      currentPage: page,
+      totalArticles: uniqueArticles.length,
     })
   } catch (error) {
     console.error("Error in news API route:", error)
@@ -1065,6 +1215,9 @@ export async function GET() {
       articles: getMockArticles(),
       totalResults: getMockArticles().length,
       source: "mock-fallback",
+      hasMore: false,
+      currentPage: page,
+      totalArticles: getMockArticles().length,
       error: error instanceof Error ? error.message : "Unknown error",
     })
   }

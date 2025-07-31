@@ -7,6 +7,8 @@ import { CategoryFilter } from "@/components/category-filter"
 import { SearchBar } from "@/components/search-bar"
 import { LoadingSpinner } from "@/components/loading-spinner"
 import { ErrorMessage } from "@/components/error-message"
+import { NewsSources } from "@/components/news-sources"
+import { LoadMoreButton } from "@/components/load-more-button"
 import { useNewsStore } from "@/store/news-store"
 import { Newspaper, TrendingUp, Info, Rss, Bot, Brain } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -19,7 +21,10 @@ export default function HomePage() {
     selectedCategory,
     searchQuery,
     dataSource,
+    currentPage,
+    hasMoreArticles,
     fetchNews,
+    loadMoreArticles,
     setSelectedCategory,
     setSearchQuery,
     clearError,
@@ -30,9 +35,15 @@ export default function HomePage() {
   useEffect(() => {
     const initializeApp = async () => {
       console.log("Page: Initializing app...")
-      await fetchNews()
-      setIsInitialized(true)
-      console.log("Page: App initialized")
+      try {
+        await fetchNews()
+        setIsInitialized(true)
+        console.log("Page: App initialized")
+      } catch (error) {
+        console.error("Page: Failed to initialize app:", error)
+        // Still set as initialized to show the UI
+        setIsInitialized(true)
+      }
     }
     initializeApp()
   }, [fetchNews])
@@ -53,11 +64,11 @@ export default function HomePage() {
     switch (dataSource) {
       case "mock":
       case "mock-fallback":
-        return "Demo mode: Showing sample articles with smart summaries."
+        return "Demo mode: Showing sample articles from multiple sources with smart summaries."
       case "news18-rss-gemini":
-        return "Live News18 feeds with Gemini AI summaries and smart categorization"
+        return "Live multi-source feeds (News18, NDTV, TOI, BBC, Reuters) with Gemini AI summaries and smart categorization"
       case "news18-rss-smart":
-        return "Live News18 feeds with intelligent text-based summaries (Gemini API not available)"
+        return "Live multi-source feeds with intelligent text-based summaries (Gemini API not available)"
       case "newsapi-simple":
         return "Live news with keyword-based categorization"
       default:
@@ -121,7 +132,7 @@ export default function HomePage() {
               className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-6"
             >
               <Bot className="w-5 h-5" />
-              <span className="text-sm font-medium">News18 + Gemini AI Platform</span>
+              <span className="text-sm font-medium">Multi-Source News + Gemini AI Platform</span>
             </motion.div>
 
             <motion.h1
@@ -141,8 +152,7 @@ export default function HomePage() {
               transition={{ delay: 0.6 }}
               className="text-xl md:text-2xl text-blue-100 mb-8 max-w-2xl mx-auto"
             >
-              Get the latest news from News18 with Gemini AI-powered summaries that make complex stories simple to
-              understand
+              Get comprehensive news from multiple sources including News18, NDTV, Times of India, BBC, Reuters and more with Gemini AI-powered summaries that make complex stories simple to understand
             </motion.p>
 
             <motion.div
@@ -157,7 +167,7 @@ export default function HomePage() {
               </div>
               <div className="flex items-center gap-2">
                 <Newspaper className="w-4 h-4" />
-                <span>News18 Sources</span>
+                <span>Multiple Sources</span>
               </div>
               <div className="flex items-center gap-2">
                 <Brain className="w-4 h-4" />
@@ -174,8 +184,8 @@ export default function HomePage() {
               key={i}
               className="absolute w-2 h-2 bg-white/20 rounded-full"
               initial={{
-                x: Math.random() * (typeof window !== "undefined" ? window.innerWidth : 1200),
-                y: Math.random() * 400,
+                x: (i * 60) % 1200,
+                y: (i * 20) % 400,
                 opacity: 0,
               }}
               animate={{
@@ -183,9 +193,9 @@ export default function HomePage() {
                 opacity: [0, 1, 0],
               }}
               transition={{
-                duration: Math.random() * 3 + 2,
+                duration: 2 + (i % 3),
                 repeat: Number.POSITIVE_INFINITY,
-                delay: Math.random() * 2,
+                delay: (i * 0.1) % 2,
               }}
             />
           ))}
@@ -208,6 +218,9 @@ export default function HomePage() {
             </Alert>
           </motion.div>
         )}
+
+        {/* News Sources */}
+        <NewsSources />
 
         {/* Search and Filter Section */}
         <motion.div
@@ -277,7 +290,7 @@ export default function HomePage() {
                   <AnimatePresence>
                     {filteredArticles.map((article, index) => (
                       <motion.div
-                        key={article.url}
+                        key={`${article.url}-${index}`}
                         layout
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -293,6 +306,29 @@ export default function HomePage() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Load More Button */}
+        {!loading && !error && filteredArticles.length > 0 && (
+          <LoadMoreButton
+            onLoadMore={loadMoreArticles}
+            loading={loading}
+            hasMore={hasMoreArticles}
+            totalArticles={articles.length}
+            currentArticles={filteredArticles.length}
+          />
+        )}
+
+        {/* Debug Info */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="mt-8 p-4 bg-gray-100 rounded-lg text-xs text-gray-600">
+            <p>Debug Info:</p>
+            <p>Total Articles: {articles.length}</p>
+            <p>Filtered Articles: {filteredArticles.length}</p>
+            <p>Current Page: {currentPage}</p>
+            <p>Has More: {hasMoreArticles ? 'Yes' : 'No'}</p>
+            <p>Data Source: {dataSource}</p>
+          </div>
+        )}
       </div>
     </div>
   )

@@ -1,17 +1,21 @@
 import { create } from "zustand"
-import type { NewsArticle } from "@/types/news"
+import type { Article } from "@/types/news"
 
 interface NewsStore {
-  articles: NewsArticle[]
+  articles: Article[]
   loading: boolean
   error: string | null
   selectedCategory: string
   searchQuery: string
   dataSource: string
-  fetchNews: () => Promise<void>
+  currentPage: number
+  hasMoreArticles: boolean
+  fetchNews: (page?: number) => Promise<void>
+  loadMoreArticles: () => Promise<void>
   setSelectedCategory: (category: string) => void
   setSearchQuery: (query: string) => void
   clearError: () => void
+  resetPagination: () => void
 }
 
 export const useNewsStore = create<NewsStore>((set, get) => ({
@@ -21,13 +25,15 @@ export const useNewsStore = create<NewsStore>((set, get) => ({
   selectedCategory: "all",
   searchQuery: "",
   dataSource: "unknown",
+  currentPage: 1,
+  hasMoreArticles: true,
 
-  fetchNews: async () => {
-    console.log("Store: Starting news fetch...")
+  fetchNews: async (page = 1) => {
+    console.log("Store: Starting news fetch for page:", page)
     set({ loading: true, error: null })
 
     try {
-      const response = await fetch("/api/news", {
+      const response = await fetch(`/api/news?page=${page}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -45,6 +51,7 @@ export const useNewsStore = create<NewsStore>((set, get) => ({
       console.log("Store: Received data:", {
         articleCount: data.articles?.length,
         source: data.source,
+        hasMore: data.hasMore,
       })
 
       if (!data.articles || !Array.isArray(data.articles)) {
@@ -52,10 +59,12 @@ export const useNewsStore = create<NewsStore>((set, get) => ({
       }
 
       set({
-        articles: data.articles,
+        articles: page === 1 ? data.articles : [...get().articles, ...data.articles],
         loading: false,
         error: null,
         dataSource: data.source || "unknown",
+        currentPage: page,
+        hasMoreArticles: data.hasMore || false,
       })
 
       console.log("Store: Successfully updated articles")
@@ -66,8 +75,21 @@ export const useNewsStore = create<NewsStore>((set, get) => ({
       set({
         error: errorMessage,
         loading: false,
-        articles: [], // Clear articles on error
+        articles: page === 1 ? [] : get().articles, // Keep existing articles on error for pagination
       })
+    }
+  },
+
+  loadMoreArticles: async () => {
+    const { currentPage, hasMoreArticles, loading } = get()
+    if (loading || !hasMoreArticles) return
+
+    const nextPage = currentPage + 1
+    try {
+      await get().fetchNews(nextPage)
+    } catch (error) {
+      console.error("Error loading more articles:", error)
+      // Don't update state on error, let the user try again
     }
   },
 
@@ -83,5 +105,9 @@ export const useNewsStore = create<NewsStore>((set, get) => ({
 
   clearError: () => {
     set({ error: null })
+  },
+
+  resetPagination: () => {
+    set({ currentPage: 1, hasMoreArticles: true })
   },
 }))
