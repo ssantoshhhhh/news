@@ -8,7 +8,7 @@ import { SearchBar } from "@/components/search-bar"
 import { LoadingSpinner } from "@/components/loading-spinner"
 import { ErrorMessage } from "@/components/error-message"
 import { useNewsStore } from "@/store/news-store"
-import { Newspaper, Sparkles, TrendingUp, Info } from "lucide-react"
+import { Newspaper, TrendingUp, Info, Rss, Bot, Brain } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export default function HomePage() {
@@ -42,7 +42,8 @@ export default function HomePage() {
     const matchesSearch =
       searchQuery === "" ||
       article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      article.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      article.aiSummary?.toLowerCase().includes(searchQuery.toLowerCase())
     return matchesCategory && matchesSearch
   })
 
@@ -52,15 +53,54 @@ export default function HomePage() {
     switch (dataSource) {
       case "mock":
       case "mock-fallback":
-        return "Demo mode: Showing sample articles. Configure NEWS_API_KEY for live data."
-      case "newsapi-ai":
-        return "Live news with AI categorization"
+        return "Demo mode: Showing sample articles with smart summaries."
+      case "news18-rss-gemini":
+        return "Live News18 feeds with Gemini AI summaries and smart categorization"
+      case "news18-rss-smart":
+        return "Live News18 feeds with intelligent text-based summaries (Gemini API not available)"
       case "newsapi-simple":
         return "Live news with keyword-based categorization"
       default:
         return null
     }
   }
+
+  const getDataSourceIcon = () => {
+    switch (dataSource) {
+      case "news18-rss-gemini":
+        return <Bot className="h-4 w-4" />
+      case "news18-rss-smart":
+        return <Brain className="h-4 w-4" />
+      case "newsapi-simple":
+        return <Rss className="h-4 w-4" />
+      default:
+        return <Info className="h-4 w-4" />
+    }
+  }
+
+  const getAlertColor = () => {
+    switch (dataSource) {
+      case "news18-rss-gemini":
+        return "bg-purple-50 border-purple-200"
+      case "news18-rss-smart":
+        return "bg-blue-50 border-blue-200"
+      default:
+        return "bg-gray-50 border-gray-200"
+    }
+  }
+
+  const getTextColor = () => {
+    switch (dataSource) {
+      case "news18-rss-gemini":
+        return "text-purple-800"
+      case "news18-rss-smart":
+        return "text-blue-800"
+      default:
+        return "text-gray-800"
+    }
+  }
+
+  const articlesWithSummaries = articles.filter((article) => article.aiSummary).length
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
@@ -69,7 +109,7 @@ export default function HomePage() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white"
+        className="relative overflow-hidden bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 text-white"
       >
         <div className="absolute inset-0 bg-black/20" />
         <div className="relative container mx-auto px-4 py-16 md:py-24">
@@ -80,8 +120,8 @@ export default function HomePage() {
               transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
               className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-6"
             >
-              <Sparkles className="w-5 h-5" />
-              <span className="text-sm font-medium">AI-Powered News Platform</span>
+              <Bot className="w-5 h-5" />
+              <span className="text-sm font-medium">News18 + Gemini AI Platform</span>
             </motion.div>
 
             <motion.h1
@@ -101,7 +141,8 @@ export default function HomePage() {
               transition={{ delay: 0.6 }}
               className="text-xl md:text-2xl text-blue-100 mb-8 max-w-2xl mx-auto"
             >
-              Get the latest news automatically categorized by AI for a personalized reading experience
+              Get the latest news from News18 with Gemini AI-powered summaries that make complex stories simple to
+              understand
             </motion.p>
 
             <motion.div
@@ -112,15 +153,15 @@ export default function HomePage() {
             >
               <div className="flex items-center gap-2">
                 <TrendingUp className="w-4 h-4" />
-                <span>Real-time Updates</span>
+                <span>Live RSS Feeds</span>
               </div>
               <div className="flex items-center gap-2">
                 <Newspaper className="w-4 h-4" />
-                <span>Multiple Sources</span>
+                <span>News18 Sources</span>
               </div>
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4" />
-                <span>AI Categorization</span>
+                <Brain className="w-4 h-4" />
+                <span>Gemini AI</span>
               </div>
             </motion.div>
           </div>
@@ -156,9 +197,14 @@ export default function HomePage() {
         {/* Data Source Info */}
         {getDataSourceMessage() && (
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-            <Alert className="bg-blue-50 border-blue-200">
-              <Info className="h-4 w-4" />
-              <AlertDescription className="text-blue-800">{getDataSourceMessage()}</AlertDescription>
+            <Alert className={getAlertColor()}>
+              {getDataSourceIcon()}
+              <AlertDescription className={getTextColor()}>
+                {getDataSourceMessage()}
+                {articlesWithSummaries > 0 && (
+                  <span className="ml-2 font-medium">• {articlesWithSummaries} articles with summaries</span>
+                )}
+              </AlertDescription>
             </Alert>
           </motion.div>
         )}
@@ -170,7 +216,11 @@ export default function HomePage() {
           transition={{ delay: 1 }}
           className="mb-8 space-y-6"
         >
-          <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder="Search news articles..." />
+          <SearchBar
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Search news articles and summaries..."
+          />
 
           <CategoryFilter
             categories={categories}

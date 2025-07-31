@@ -1,107 +1,228 @@
 "use client"
 
-import { motion } from "framer-motion"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Calendar, ExternalLink, User, Clock } from "lucide-react"
-import type { NewsArticle } from "@/types/news"
-import { formatDistanceToNow } from "date-fns"
+import { Badge } from "@/components/ui/badge"
+import { Calendar, ExternalLink, Eye, EyeOff, Clock } from "lucide-react"
+import Link from "next/link"
+import Image from "next/image"
+
+interface Article {
+  title: string
+  description: string
+  url: string
+  urlToImage: string | null
+  publishedAt: string
+  source: { name: string }
+  content?: string
+  aiCategory: string
+  aiSummary?: string
+}
 
 interface NewsCardProps {
-  article: NewsArticle
+  article: Article
 }
 
 export function NewsCard({ article }: NewsCardProps) {
+  const [showSummary, setShowSummary] = useState(false)
+  const [imageError, setImageError] = useState(false)
+
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString)
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
+    } catch {
+      return "Recent"
+    }
+  }
+
   const getCategoryColor = (category: string) => {
     const colors = {
-      technology: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
-      business: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-      sports: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300",
-      entertainment: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300",
-      health: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
-      science: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-300",
-      general: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300",
+      technology: "bg-blue-100 text-blue-800",
+      business: "bg-green-100 text-green-800",
+      sports: "bg-orange-100 text-orange-800",
+      entertainment: "bg-pink-100 text-pink-800",
+      politics: "bg-purple-100 text-purple-800",
+      health: "bg-red-100 text-red-800",
+      science: "bg-cyan-100 text-cyan-800",
+      education: "bg-indigo-100 text-indigo-800",
+      lifestyle: "bg-yellow-100 text-yellow-800",
+      auto: "bg-gray-100 text-gray-800",
+      india: "bg-orange-100 text-orange-800",
+      world: "bg-blue-100 text-blue-800",
+      viral: "bg-red-100 text-red-800",
+      explainers: "bg-green-100 text-green-800",
+      general: "bg-gray-100 text-gray-800",
     }
-    return colors[category as keyof typeof colors] || colors.general
+    return colors[category as keyof typeof colors] || "bg-gray-100 text-gray-800"
+  }
+
+  const getCategoryIcon = (category: string) => {
+    const icons = {
+      technology: "💻",
+      business: "💼",
+      sports: "⚽",
+      entertainment: "🎬",
+      politics: "🏛️",
+      health: "🏥",
+      science: "🔬",
+      education: "📚",
+      lifestyle: "✨",
+      auto: "🚗",
+      india: "🇮🇳",
+      world: "🌍",
+      viral: "🔥",
+      explainers: "📖",
+      general: "📰",
+    }
+    return icons[category as keyof typeof icons] || "📰"
+  }
+
+  const getReadingTime = (text: string) => {
+    const wordsPerMinute = 200
+    const words = text.split(" ").length
+    const minutes = Math.ceil(words / wordsPerMinute)
+    return `${minutes} min read`
+  }
+
+  // Create URL-safe ID from title
+  const createArticleId = (title: string) => {
+    return encodeURIComponent(
+      title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, ""),
+    )
+  }
+
+  // Get image URL with fallback
+  const getImageUrl = () => {
+    if (imageError || !article.urlToImage) {
+      return "/placeholder.svg?height=400&width=600&text=News+Image"
+    }
+    return article.urlToImage
   }
 
   return (
     <motion.div
-      whileHover={{ y: -5, scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -5 }}
+      transition={{ duration: 0.3 }}
     >
-      <Card className="h-full overflow-hidden bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
-        {article.urlToImage && (
-          <div className="relative overflow-hidden">
-            <motion.img
-              src={article.urlToImage}
-              alt={article.title}
-              className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
-              whileHover={{ scale: 1.1 }}
-              transition={{ duration: 0.3 }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-            <Badge className={`absolute top-3 left-3 ${getCategoryColor(article.aiCategory)} border-0`}>
-              {article.aiCategory}
+      <Card className="h-full flex flex-col overflow-hidden hover:shadow-xl transition-all duration-300 border-0 shadow-md">
+        {/* Image Section */}
+        <div className="relative h-48 overflow-hidden">
+          <Link href={`/article/${createArticleId(article.title)}`}>
+            <div className="relative w-full h-full">
+              <Image
+                src={getImageUrl() || "/placeholder.svg"}
+                alt={article.title}
+                fill
+                className="object-cover cursor-pointer transition-transform duration-300 hover:scale-105"
+                onError={() => setImageError(true)}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                priority={false}
+              />
+            </div>
+          </Link>
+
+          {/* Category Badge */}
+          <div className="absolute top-3 left-3">
+            <Badge className={`${getCategoryColor(article.aiCategory)} font-medium`}>
+              {getCategoryIcon(article.aiCategory)}{" "}
+              {article.aiCategory.charAt(0).toUpperCase() + article.aiCategory.slice(1)}
             </Badge>
           </div>
-        )}
+
+          {/* Source Badge */}
+          <div className="absolute top-3 right-3">
+            <Badge variant="secondary" className="bg-black/70 text-white">
+              {article.source.name}
+            </Badge>
+          </div>
+        </div>
 
         <CardHeader className="pb-3">
-          <motion.h3
-            className="font-bold text-lg leading-tight text-gray-900 dark:text-gray-100 line-clamp-2 group-hover:text-blue-600 transition-colors"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.1 }}
-          >
-            {article.title}
-          </motion.h3>
+          <Link href={`/article/${createArticleId(article.title)}`}>
+            <h3 className="font-bold text-lg leading-tight hover:text-blue-600 transition-colors cursor-pointer line-clamp-2">
+              {article.title}
+            </h3>
+          </Link>
 
-          <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-            {article.author && (
-              <div className="flex items-center gap-1">
-                <User className="w-3 h-3" />
-                <span className="truncate max-w-24">{article.author}</span>
-              </div>
-            )}
+          <div className="flex items-center gap-4 text-sm text-gray-500 mt-2">
             <div className="flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              <span>{formatDistanceToNow(new Date(article.publishedAt), { addSuffix: true })}</span>
+              <Calendar className="w-4 h-4" />
+              {formatDate(article.publishedAt)}
+            </div>
+            <div className="flex items-center gap-1">
+              <Clock className="w-4 h-4" />
+              {getReadingTime(article.description)}
             </div>
           </div>
         </CardHeader>
 
-        <CardContent className="pt-0">
-          {article.description && (
-            <motion.p
-              className="text-gray-600 dark:text-gray-300 text-sm line-clamp-3 mb-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
+        <CardContent className="flex-1 pb-3">
+          <p className="text-gray-600 text-sm leading-relaxed line-clamp-3 mb-4">{article.description}</p>
+
+          {/* AI Summary Section */}
+          <AnimatePresence>
+            {showSummary && article.aiSummary && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="bg-gradient-to-r from-blue-50 to-purple-50 p-3 rounded-lg border border-blue-100 mb-4"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                  <span className="text-xs font-medium text-blue-700">AI Summary</span>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed">{article.aiSummary}</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </CardContent>
+
+        <CardFooter className="pt-0 flex flex-col gap-3">
+          {/* Summary Toggle Button */}
+          {article.aiSummary && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowSummary(!showSummary)}
+              className="w-full flex items-center gap-2 hover:bg-blue-50 hover:border-blue-200"
             >
-              {article.description}
-            </motion.p>
+              {showSummary ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              {showSummary ? "Hide Smart Summary" : "Show Smart Summary"}
+            </Button>
           )}
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1 text-xs text-gray-500">
-              <Calendar className="w-3 h-3" />
-              <span>{new Date(article.publishedAt).toLocaleDateString()}</span>
-            </div>
+          {/* Action Buttons */}
+          <div className="flex gap-2 w-full">
+            <Link href={`/article/${createArticleId(article.title)}`} className="flex-1">
+              <Button className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white">
+                Read More
+              </Button>
+            </Link>
 
             <Button
-              size="sm"
               variant="outline"
-              className="group/btn hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 transition-all duration-200 bg-transparent"
+              size="sm"
               onClick={() => window.open(article.url, "_blank")}
+              className="flex items-center gap-1 hover:bg-gray-50"
             >
-              Read More
-              <ExternalLink className="w-3 h-3 ml-1 group-hover/btn:translate-x-0.5 transition-transform" />
+              <ExternalLink className="w-4 h-4" />
             </Button>
           </div>
-        </CardContent>
+        </CardFooter>
       </Card>
     </motion.div>
   )

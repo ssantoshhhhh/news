@@ -1,20 +1,18 @@
-export interface NewsArticle {
+export interface Article {
   title: string
-  description: string | null
+  description: string
   url: string
-  urlToImage: string | null
+  urlToImage: string
   publishedAt: string
   source: {
-    id: string | null
     name: string
   }
-  author: string | null
-  content: string | null
+  content?: string
   aiCategory: string
+  aiSummary?: string
 }
 
 export interface NewsResponse {
-  status: string
-  totalResults: number
-  articles: NewsArticle[]
+  articles: Article[]
+  dataSource: string
 }
