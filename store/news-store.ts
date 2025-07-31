@@ -87,10 +87,7 @@ export const useNewsStore = create<NewsStore>((set, get) => ({
     const nextPage = currentPage + 1
     try {
       await get().fetchNews(nextPage)
-      // Scroll to top after loading new articles
-      if (typeof window !== 'undefined') {
-        window.scrollTo({ top: 0, behavior: 'smooth' })
-      }
+      // Keep user at current position - no auto-scroll
     } catch (error) {
       console.error("Error loading more articles:", error)
       // Don't update state on error, let the user try again

@@ -262,7 +262,12 @@ async function parseRSSFeed(xmlContent: string, category: string): Promise<Parse
         }
 
         // Extract image with multiple fallback methods
-        const imageUrl = extractImageFromContent(description, itemXml) || generatePlaceholderImage(category)
+        let imageUrl = extractImageFromContent(description, itemXml) || generatePlaceholderImage(category)
+        
+        // Validate and clean image URL
+        if (!imageUrl || imageUrl === 'null' || imageUrl === '' || imageUrl.length < 10) {
+          imageUrl = generatePlaceholderImage(category)
+        }
 
         // Clean and prepare content
         const cleanTitle = cleanText(title) || `${category} News Article`
@@ -407,14 +412,29 @@ function isValidImageUrl(url: string): boolean {
     if (!url || typeof url !== "string") return false
 
     const trimmedUrl = url.trim()
+    
+    // Must be a valid URL
     if (!trimmedUrl.startsWith("http")) return false
+    
+    // Must be at least 10 characters
+    if (trimmedUrl.length < 10) return false
 
     // Check for valid image extensions
-    const imageExtensions = /\.(jpg|jpeg|png|gif|webp|bmp)(\?.*)?$/i
+    const imageExtensions = /\.(jpg|jpeg|png|gif|webp|bmp|svg)(\?.*)?$/i
     if (!imageExtensions.test(trimmedUrl)) return false
 
     // Avoid obviously invalid URLs
-    if (trimmedUrl.includes("javascript:") || trimmedUrl.includes("data:")) return false
+    if (trimmedUrl.includes("javascript:") || 
+        trimmedUrl.includes("data:") || 
+        trimmedUrl.includes("null") ||
+        trimmedUrl.includes("undefined")) return false
+
+    // Must be a proper URL structure
+    try {
+      new URL(trimmedUrl)
+    } catch {
+      return false
+    }
 
     return true
   } catch (error) {
@@ -425,24 +445,28 @@ function isValidImageUrl(url: string): boolean {
 // Generate category-specific placeholder
 function generatePlaceholderImage(category: string): string {
   const categoryImages = {
-    technology: "/placeholder.svg?height=400&width=600&text=Technology+News",
-    business: "/placeholder.svg?height=400&width=600&text=Business+News",
-    sports: "/placeholder.svg?height=400&width=600&text=Sports+News",
-    entertainment: "/placeholder.svg?height=400&width=600&text=Entertainment+News",
-    politics: "/placeholder.svg?height=400&width=600&text=Politics+News",
-    health: "/placeholder.svg?height=400&width=600&text=Health+News",
-    education: "/placeholder.svg?height=400&width=600&text=Education+News",
-    lifestyle: "/placeholder.svg?height=400&width=600&text=Lifestyle+News",
-    auto: "/placeholder.svg?height=400&width=600&text=Auto+News",
-    india: "/placeholder.svg?height=400&width=600&text=India+News",
-    world: "/placeholder.svg?height=400&width=600&text=World+News",
-    viral: "/placeholder.svg?height=400&width=600&text=Viral+News",
-    explainers: "/placeholder.svg?height=400&width=600&text=Explainer",
+    technology: "/placeholder.svg?height=400&width=600&text=💻+Technology",
+    business: "/placeholder.svg?height=400&width=600&text=💼+Business",
+    sports: "/placeholder.svg?height=400&width=600&text=⚽+Sports",
+    entertainment: "/placeholder.svg?height=400&width=600&text=🎬+Entertainment",
+    politics: "/placeholder.svg?height=400&width=600&text=🏛️+Politics",
+    health: "/placeholder.svg?height=400&width=600&text=🏥+Health",
+    education: "/placeholder.svg?height=400&width=600&text=📚+Education",
+    lifestyle: "/placeholder.svg?height=400&width=600&text=✨+Lifestyle",
+    auto: "/placeholder.svg?height=400&width=600&text=🚗+Auto",
+    india: "/placeholder.svg?height=400&width=600&text=🇮🇳+India",
+    world: "/placeholder.svg?height=400&width=600&text=🌍+World",
+    viral: "/placeholder.svg?height=400&width=600&text=🔥+Viral",
+    explainers: "/placeholder.svg?height=400&width=600&text=📖+Explainer",
+    general: "/placeholder.svg?height=400&width=600&text=📰+News",
   }
 
-  return (
-    categoryImages[category as keyof typeof categoryImages] || "/placeholder.svg?height=400&width=600&text=News+Article"
-  )
+  // Clean category name and get appropriate placeholder
+  const cleanCategory = category.toLowerCase().replace(/[^a-z]/g, '')
+  const placeholder = categoryImages[cleanCategory as keyof typeof categoryImages] || 
+                    categoryImages.general
+
+  return placeholder
 }
 
 // Improved date parsing with more formats

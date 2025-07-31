@@ -28,6 +28,7 @@ interface NewsCardProps {
 export function NewsCard({ article }: NewsCardProps) {
   const [showSummary, setShowSummary] = useState(false)
   const [imageError, setImageError] = useState(false)
+  const [imageLoading, setImageLoading] = useState(true)
 
   const formatDate = (dateString: string) => {
     try {
@@ -103,7 +104,7 @@ export function NewsCard({ article }: NewsCardProps) {
 
   // Get image URL with fallback
   const getImageUrl = () => {
-    if (imageError || !article.urlToImage) {
+    if (imageError || !article.urlToImage || article.urlToImage === 'null' || article.urlToImage === '') {
       return "/placeholder.svg?height=400&width=600&text=News+Image"
     }
     return article.urlToImage
@@ -122,14 +123,26 @@ export function NewsCard({ article }: NewsCardProps) {
           <Link href={`/article/${createArticleId(article.title)}`}>
             <div className="relative w-full h-full">
               <Image
-                src={getImageUrl() || "/placeholder.svg"}
+                src={getImageUrl()}
                 alt={article.title}
                 fill
                 className="object-cover cursor-pointer transition-transform duration-300 hover:scale-105"
-                onError={() => setImageError(true)}
+                onError={() => {
+                  setImageError(true)
+                  setImageLoading(false)
+                }}
+                onLoad={() => setImageLoading(false)}
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 priority={false}
+                unoptimized={article.urlToImage?.startsWith('data:') || false}
               />
+              
+              {/* Loading overlay */}
+              {imageLoading && !imageError && (
+                <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
+                  <div className="w-8 h-8 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+                </div>
+              )}
             </div>
           </Link>
 
