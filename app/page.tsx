@@ -127,6 +127,41 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      {/* Header with Logo */}
+      <motion.header
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50"
+      >
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                className="relative"
+              >
+                <img
+                  src="/ai-news.png"
+                  alt="AI News Platform Logo"
+                  className="h-12 w-auto object-contain"
+                />
+              </motion.div>
+              <div className="flex flex-col">
+                <h1 className="text-xl font-bold text-gray-900">AI News Platform</h1>
+                <p className="text-xs text-gray-600">Smart News with AI</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 text-sm text-gray-600">
+              <a href="/" className="hover:text-blue-600 transition-colors">Home</a>
+              <a href="/summarize" className="hover:text-blue-600 transition-colors">Summarize</a>
+            </div>
+          </div>
+        </div>
+      </motion.header>
+
       {/* Hero Section */}
       <motion.section
         initial={{ opacity: 0, y: -20 }}

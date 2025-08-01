@@ -7,10 +7,18 @@ import { ThemeProvider } from "@/components/theme-provider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "AI News - Smart News Platform",
+  title: "AI Smart News",
   description: "Stay informed with AI-powered news categorization and personalized content discovery.",
   keywords: "news, AI, artificial intelligence, technology, business, sports, entertainment",
-    generator: 'v0.dev'
+  generator: 'v0.dev',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/ai-news.png', type: 'image/png' }
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/ai-news.png',
+  }
 }
 
 export default function RootLayout({

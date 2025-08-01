@@ -82,7 +82,42 @@ export default function SummarizePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Header */}
+      {/* Header with Logo */}
+      <motion.header
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50"
+      >
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                className="relative"
+              >
+                <img
+                  src="/ai-news.png"
+                  alt="AI News Platform Logo"
+                  className="h-12 w-auto object-contain"
+                />
+              </motion.div>
+              <div className="flex flex-col">
+                <h1 className="text-xl font-bold text-gray-900">AI News Platform</h1>
+                <p className="text-xs text-gray-600">Smart News with AI</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 text-sm text-gray-600">
+              <Link href="/" className="hover:text-blue-600 transition-colors">Home</Link>
+              <span className="text-blue-600 font-medium">Summarize</span>
+            </div>
+          </div>
+        </div>
+      </motion.header>
+
+      {/* Content */}
       <div className="container mx-auto px-4 py-8">
         <Link href="/" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-6">
           <ArrowLeft className="w-4 h-4 mr-2" />
