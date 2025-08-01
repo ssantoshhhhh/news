@@ -11,7 +11,7 @@ import { NewsSources } from "@/components/news-sources"
 import { LoadMoreButton } from "@/components/load-more-button"
 import { Footer } from "@/components/footer"
 import { useNewsStore } from "@/store/news-store"
-import { Newspaper, TrendingUp, Info, Rss, Bot, Brain } from "lucide-react"
+import { Newspaper, TrendingUp, Info, Rss, Bot, Brain, FileText } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export default function HomePage() {
@@ -164,27 +164,48 @@ export default function HomePage() {
               transition={{ delay: 0.6 }}
               className="text-xl md:text-2xl text-blue-100 mb-8 max-w-2xl mx-auto"
             >
-              Get comprehensive news from multiple sources including News18, NDTV, Times of India, BBC, Reuters and more with Gemini AI-powered summaries that make complex stories simple to understand
+              Get comprehensive news from multiple sources including News18, NDTV, Times of India, BBC, Reuters and more with Gemini AI-powered summaries and Grok AI analysis that make complex stories simple to understand
             </motion.p>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8 }}
-              className="flex items-center justify-center gap-6 text-sm text-blue-100"
+              className="flex flex-col items-center gap-6"
             >
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-4 h-4" />
-                <span>Live RSS Feeds</span>
+              <div className="flex items-center justify-center gap-6 text-sm text-blue-100">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4" />
+                  <span>Live RSS Feeds</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Newspaper className="w-4 h-4" />
+                  <span>Multiple Sources</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Brain className="w-4 h-4" />
+                  <span>Gemini AI</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Bot className="w-4 h-4" />
+                  <span>Grok AI</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Newspaper className="w-4 h-4" />
-                <span>Multiple Sources</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Brain className="w-4 h-4" />
-                <span>Gemini AI</span>
-              </div>
+              
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 1.0 }}
+                className="flex gap-4"
+              >
+                <a
+                  href="/summarize"
+                  className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:scale-105"
+                >
+                  <FileText className="w-4 h-4" />
+                  Summarize Your Articles
+                </a>
+              </motion.div>
             </motion.div>
           </div>
         </div>

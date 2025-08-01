@@ -1,6 +1,6 @@
 # AI News Platform
 
-A modern, AI-powered news aggregation platform built with Next.js 15, React 19, and Gemini AI. Get comprehensive news coverage from multiple sources with intelligent categorization and AI-powered summaries.
+A modern, AI-powered news aggregation platform built with Next.js 15, React 19, Gemini AI, and Grok AI. Get comprehensive news coverage from multiple sources with intelligent categorization and AI-powered summaries.
 
 ![AI News Platform](https://img.shields.io/badge/AI%20News%20Platform-v1.0.0-blue?style=for-the-badge)
 ![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)
@@ -16,7 +16,8 @@ A modern, AI-powered news aggregation platform built with Next.js 15, React 19, 
 - **Automatic deduplication** to avoid duplicate articles
 
 ### 🤖 **AI-Powered Intelligence**
-- **Gemini AI integration** for smart article summarization
+- **Gemini AI integration** for smart news summarization
+- **Grok AI integration** for article analysis and Q&A
 - **Intelligent categorization** using keyword analysis
 - **Smart summaries** that make complex stories easy to understand
 - **Fallback processing** when AI is unavailable
@@ -46,7 +47,8 @@ A modern, AI-powered news aggregation platform built with Next.js 15, React 19, 
 | **Framer Motion** | 10.0 | Animations |
 | **Zustand** | 4.0 | State management |
 | **Radix UI** | 1.0 | UI components |
-| **Gemini AI** | Latest | AI summaries |
+| **Gemini AI** | Latest | News summaries |
+| **Grok AI** | Latest | Article analysis |
 
 ## 📦 Installation
 

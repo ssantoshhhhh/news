@@ -13,6 +13,7 @@ export function Footer() {
     { name: "Zustand", color: "bg-orange-500 text-white" },
     { name: "Radix UI", color: "bg-gray-800 text-white" },
     { name: "Gemini AI", color: "bg-green-500 text-white" },
+    { name: "Grok AI", color: "bg-red-500 text-white" },
   ]
 
   return (
@@ -53,11 +54,11 @@ export function Footer() {
             </div>
             <div className="flex items-center justify-center gap-2">
               <Code className="w-4 h-4 text-blue-500" />
-              <span>AI-Powered Summaries</span>
+              <span>Gemini AI Summaries</span>
             </div>
             <div className="flex items-center justify-center gap-2">
               <ExternalLink className="w-4 h-4 text-green-500" />
-              <span>Real-time Updates</span>
+              <span>Grok AI Analysis</span>
             </div>
           </div>
 
@@ -80,7 +81,7 @@ export function Footer() {
 
           {/* Copyright */}
           <div className="text-xs text-gray-400">
-            <p>© 2024 AI News Platform. Powered by Gemini AI and Next.js.</p>
+            <p>© 2025 AI News Platform. Powered by Gemini AI, Grok AI, and Next.js.</p>
           </div>
         </div>
       </div>
